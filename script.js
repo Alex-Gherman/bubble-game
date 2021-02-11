@@ -3,6 +3,7 @@ const ctx = canvas.getContext("2d");
 const scoreEl = document.getElementById("scoreEl");
 const startGameBtn = document.getElementById("startBtn");
 const modalEl = document.getElementById("main-ui");
+const bigscoreEL = document.getElementById("score-ui");
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
@@ -103,7 +104,7 @@ class Particle {
 
 const x = canvas.width / 2;
 const y = canvas.height / 2;
-const player = new Player(x, y, 10, "white");
+let player = new Player(x, y, 10, "white");
 /*
 .########.....###....########....###....########.....###....##....##.##....##
 .##.....##...##.##......##......##.##...##.....##...##.##...###...##.##...##.
@@ -113,9 +114,22 @@ const player = new Player(x, y, 10, "white");
 .##.....##.##.....##....##....##.....##.##.....##.##.....##.##...###.##...##.
 .########..##.....##....##....##.....##.########..##.....##.##....##.##....##
 */
-const enemiesData = [];
-const projectilesData = [];
-const particlesData = [];
+let enemiesData = [];
+let projectilesData = [];
+let particlesData = [];
+let animationId;
+let score = 0;
+
+function init() {
+  score = 0;
+  player = new Player(x, y, 10, "white");
+  projectilesData = [];
+  enemiesData = [];
+  particlesData = [];
+  score = 0;
+  scoreEl.innerHTML = score;
+  bigscoreEL.innerHTML = score;
+}
 /*
 ..######..########.....###....##......##.##....##.########.##....##.########.##.....##.####.########..######.
 .##....##.##.....##...##.##...##..##..##.###...##.##.......###...##.##.......###...###..##..##.......##....##
@@ -167,8 +181,7 @@ addEventListener("click", (e) => {
   };
   projectilesData.push(new Projectile(x, y, 5, "white", velocity));
 });
-let animationId;
-let score = 0;
+
 /*
 ....###....##....##.####.##.....##....###....########.########...##........#######...#######..########.
 ...##.##...###...##..##..###...###...##.##......##....##.........##.......##.....##.##.....##.##.....##
@@ -214,9 +227,19 @@ const animate = () => {
   enemiesData.forEach((enemies, index) => {
     enemies.update();
     let dist = Math.hypot(player.x - enemies.x, player.y - enemies.y);
-    //end game
+    ///*
+    //.########.##....##.########.....######......###....##.....##.########
+    //.##.......###...##.##.....##...##....##....##.##...###...###.##......
+    //.##.......####..##.##.....##...##.........##...##..####.####.##......
+    //.######...##.##.##.##.....##...##...####.##.....##.##.###.##.######..
+    //.##.......##..####.##.....##...##....##..#########.##.....##.##......
+    //.##.......##...###.##.....##...##....##..##.....##.##.....##.##......
+    //.########.##....##.########.....######...##.....##.##.....##.########
+    //*/
     if (dist - enemies.radius - player.radius < 1) {
       cancelAnimationFrame(animationId);
+      modalEl.style.display = "flex";
+      bigscoreEL.innerHTML = score;
     }
     //projectilesData
     //   projectile Touch enemy
@@ -271,6 +294,7 @@ const animate = () => {
   });
 };
 startGameBtn.addEventListener("click", (e) => {
+  init();
   animate();
   spawnEnemies();
   modalEl.style.display = "none";
