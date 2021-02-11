@@ -1,6 +1,6 @@
 const canvas = document.getElementById("canvas1");
 const ctx = canvas.getContext("2d");
-
+const scoreEl = document.getElementById("scoreEl");
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
@@ -70,7 +70,7 @@ class Enemy {
     this.y = this.y + this.velocity.y;
   }
 }
-
+const friction = 0.99;
 class Particle {
   constructor(x, y, radius, color, velocity) {
     this.x = x;
@@ -91,9 +91,11 @@ class Particle {
   }
   update() {
     this.draw();
+    this.velocity.x *= friction;
+    this.velocity.y *= friction;
     this.x = this.x + this.velocity.x;
     this.y = this.y + this.velocity.y;
-    this.alpha -= 0.02; ///calculate alpha
+    this.alpha -= 0.01; ///calculate alpha (opacity)
   }
 }
 
@@ -164,6 +166,7 @@ addEventListener("click", (e) => {
   projectilesData.push(new Projectile(x, y, 5, "white", velocity));
 });
 let animationId;
+let score = 0;
 /*
 ....###....##....##.####.##.....##....###....########.########...##........#######...#######..########.
 ...##.##...###...##..##..###...###...##.##......##....##.........##.......##.....##.##.....##.##.....##
@@ -183,7 +186,7 @@ const animate = () => {
 
   particlesData.forEach((particle, index) => {
     if (particle.alpha <= 0) {
-      //delete particles if they are not visible >> particle.alpha <= 0 alpha
+      //delete particles if they are not visible >> particle.alpha <= 0 alpha\
       particlesData.splice(index, 1);
     } else {
       particle.update();
@@ -224,16 +227,26 @@ const animate = () => {
       if (dist - enemies.radius - projectile.radius < 1) {
         {
           // create and push the particles in particlesData array
-          for (let i = 0; i < 8; i++) {
+          //create explosion
+          for (let i = 0; i < enemies.radius / 2; i++) {
             particlesData.push(
-              new Projectile(projectile.x, projectile.y, 3, enemies.color, {
-                x: Math.random() - 0.5, //random x and y
-                y: Math.random() - 0.5,
-              })
+              new Particle(
+                projectile.x,
+                projectile.y,
+                Math.random() * 2,
+                enemies.color,
+                {
+                  x: (Math.random() - 0.5) * (Math.random() * 5), //random x and y
+                  y: (Math.random() - 0.5) * (Math.random() * 5),
+                }
+              )
             );
           }
 
           if (enemies.radius - 10 > 5) {
+            // incress our score
+            score += 100;
+            scoreEl.innerHTML = score;
             gsap.to(enemies, {
               radius: enemies.radius - 10,
             });
@@ -241,6 +254,9 @@ const animate = () => {
               projectilesData.splice(projectileIndex, 1);
             }, 0);
           } else {
+            //remove from the game score
+            score += 250;
+            scoreEl.innerHTML = score;
             setTimeout(() => {
               ///fix the pop up
               enemiesData.splice(index, 1);
