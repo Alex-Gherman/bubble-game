@@ -1,6 +1,8 @@
 const canvas = document.getElementById("canvas1");
 const ctx = canvas.getContext("2d");
 const scoreEl = document.getElementById("scoreEl");
+const startGameBtn = document.getElementById("startBtn");
+const modalEl = document.getElementById("main-ui");
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
@@ -268,6 +270,8 @@ const animate = () => {
     });
   });
 };
-
-animate();
-spawnEnemies();
+startGameBtn.addEventListener("click", (e) => {
+  animate();
+  spawnEnemies();
+  modalEl.style.display = "none";
+});
